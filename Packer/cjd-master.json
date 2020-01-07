@@ -1,0 +1,26 @@
+{
+    "variables": {
+        "gcloud_account_json": "/Users/david/dcanadillas-main-gmail-20200107.json",
+        "gcloud_project_id": "dcanadillas-main"
+    },
+    "builders": [
+        {
+            "type": "googlecompute",
+            "account_file": "{{user `gcloud_account_json`}}",
+            "project_id": "{{user `gcloud_project_id`}}",
+            "source_image_family": "debian-9",
+            "image_name": "cjd-{{timestamp}}",
+            "image_family": "cloudbees",
+            "machine_type": "n1-standard-1",
+            "ssh_username": "jenkins",
+            "zone": "europe-west1-c"
+
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "./update.sh"
+        }
+    ] 
+}
