@@ -27,7 +27,7 @@ resource "google_container_node_pool" "primary_nodepool" {
   node_config {
     # preemptible  = true
     machine_type = "n1-standard-2"
-    disk_type = "pd-ssd"
+    # disk_type = "pd-ssd"
 
     metadata = {
       disable-legacy-endpoints = "true"
