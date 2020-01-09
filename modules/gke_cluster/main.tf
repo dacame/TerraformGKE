@@ -60,6 +60,7 @@ data "google_compute_image" "jenkins_image" {
 }
 
 resource "google_compute_instance_template" "instance_template" {
+  # Adding an If-Else statement to create depending on packer image creation first
   count = "${var.packer-image}" ? 1 : 0
   name = "${var.template_name}"
   project = "${var.gcp-project}"
@@ -74,4 +75,17 @@ resource "google_compute_instance_template" "instance_template" {
     network = "default"
   }
   
+}
+
+resource "google_compute_instance_from_template" "jenkins_vm" {
+  # Adding an If-Else statement to create depending on packer image creation first
+  count = "${var.packer-image}" ? 1 : 0
+  name = "jenkins-from-template"
+  zone = "${var.gcp-zone}"
+
+  source_instance_template = "${google_compute_instance_template.instance_template[0].self_link}"
+
+  labels = {
+    demo = "dcanadillas"
+  }
 }
