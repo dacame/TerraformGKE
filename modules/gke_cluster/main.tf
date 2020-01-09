@@ -70,5 +70,8 @@ resource "google_compute_instance_template" "instance_template" {
   disk {
     source_image = "${data.google_compute_image.jenkins_image[count.index].self_link}"
   }
+  network_interface {
+    network = "default"
+  }
   
 }

@@ -1,3 +1,21 @@
+terraform {
+  backend gcs {
+    bucket = "terraform-gcs-state"
+    prefix = "terraform/gmail_free_tier"
+  }
+}
+
+# terraform {
+#   backend "remote" {
+#     hostname = "app.terraform.io"
+#     organization = "HashicorpTEst"
+#     workspaces {
+#       name = "Demo"
+      
+#     }
+#   }
+# }
+
 module "gke_cluster" {
   source = "../modules/gke_cluster"
   gcp-project = "${var.project}"
