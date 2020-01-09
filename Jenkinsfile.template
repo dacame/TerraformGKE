@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    environment {
+        GOOGLE_APPLICATION_CREDENTIALS=credentials("${params.gcp_creds}")
+    }
+    parameters {
+        string(name: 'project', defaultValue: 'dcanadillas-main')
+        string(name: 'numnodes', defaultValue: '2')
+        string(name: 'gcpregion', defaultValue: 'europe-west1')
+        string(name: 'gcpzone', defaultValue: 'europe-west1-c')
+        booleanParam(name: 'image', defaultValue: true)
+        choice(name: 'directory', choices: ['cloudbees', 'gmail-free-tier'])
+        choice(name: 'gcp_creds', choices: ['cloudbees-gcp', 'gmail-gcp'])
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'dacame-github', url: 'https://github.com/dacame/TerraformGKE.git'
+            }
+        }
+        stage('Plan') {
+            steps {
+                sh "echo ${params.gcp_creds}"
+                withCredentials([file(credentialsId: "${params.gcp_creds}", variable: 'gcpfile')]) {
+                    sh """
+                    echo ${GOOGLE_APPLICATION_CREDENTIALS}
+                    cd ${params.directory}
+                    terraform init
+                    terraform validate
+                    pwd
+                    terraform plan -var credentials=${gcpfile} -var image=${params.image} -var project=${params.project} -var numnodes=${params.numnodes} -var gcp-region=${params.gcpregion} -var gcp-zone=${params.gcpzone}
+                    """   
+                }
+            }
+        }
+        stage('Provision') {
+            input {
+                message "You are about to create GCP resources. Are you sure?"
+                ok "Go for it"
+                submitter "dcanadillas"
+            }
+            steps {
+                withCredentials([file(credentialsId: "${params.gcp_creds}", variable: 'gcpfile')]) {
+                    sh """
+                        cd ${params.directory}
+                        terraform apply -var credentials=${gcpfile} -var credentials=${gcpfile} -var image=${params.image} -var project=${params.project} -var numnodes=${params.numnodes} -var gcp-region=${params.gcpregion} -var gcp-zone=${params.gcpzone} --auto-approve
+                    """
+                }
+            }
+        }
+        /*stage('Deploy') {
+            steps {
+                sh 'kubectl version'
+            }
+        }*/
+    } 
+}
