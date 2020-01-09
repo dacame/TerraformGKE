@@ -85,6 +85,13 @@ resource "google_compute_instance_from_template" "jenkins_vm" {
 
   source_instance_template = "${google_compute_instance_template.instance_template[0].self_link}"
 
+  # override instance template
+  network_interface {
+    network = "default"
+    access_config {
+      
+    }
+  }
   labels = {
     demo = "dcanadillas"
   }
